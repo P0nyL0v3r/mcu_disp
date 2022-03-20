@@ -4,14 +4,15 @@
 
 #define DELAY 0x80
 
-// based on Adafruit ST7735 library for Arduino
+// based on weact mini h7 display example
 static const uint8_t
   init_cmds1[] = {            // Init for 7735R, part 1 (red or green tab)
-    15,                       // 15 commands in list:
+    16,                       // 15 commands in list:
     ST7735_SWRESET,   DELAY,  //  1: Software reset, 0 args, w/delay
-      150,                    //     150 ms delay
-    ST7735_SLPOUT ,   DELAY,  //  2: Out of sleep mode, 0 args, w/delay
-      255,                    //     500 ms delay
+      120,                    //     150 ms delay
+	ST7735_SWRESET,   DELAY,  //  1: Software reset, 0 args, w/delay
+	  120,                    //     150 ms delay
+    ST7735_SLPOUT ,   0,  //  2: Out of sleep mode, 0 args, w/delay
     ST7735_FRMCTR1, 3      ,  //  3: Frame rate ctrl - normal mode, 3 args:
       0x01, 0x2C, 0x2D,       //     Rate = fosc/(1x2+40) * (LINE+2C+2D)
     ST7735_FRMCTR2, 3      ,  //  4: Frame rate control - idle mode, 3 args:
@@ -32,7 +33,7 @@ static const uint8_t
       0x00,                   //     Boost frequency
     ST7735_PWCTR4 , 2      ,  // 10: Power control, 2 args, no delay:
       0x8A,                   //     BCLK/2, Opamp current small & Medium low
-      0x2A,  
+      0x2A,
     ST7735_PWCTR5 , 2      ,  // 11: Power control, 2 args, no delay:
       0x8A, 0xEE,
     ST7735_VMCTR1 , 1      ,  // 12: Power control, 1 arg, no delay:
@@ -42,6 +43,45 @@ static const uint8_t
       ST7735_ROTATION,        //     row addr/col addr, bottom to top refresh
     ST7735_COLMOD , 1      ,  // 15: set color mode, 1 arg, no delay:
       0x05 },                 //     16-bit color
+
+// based on Adafruit ST7735 library for Arduino
+//static const uint8_t
+//  init_cmds1[] = {            // Init for 7735R, part 1 (red or green tab)
+//    15,                       // 15 commands in list:
+//    ST7735_SWRESET,   DELAY,  //  1: Software reset, 0 args, w/delay
+//      150,                    //     150 ms delay
+//    ST7735_SLPOUT ,   DELAY,  //  2: Out of sleep mode, 0 args, w/delay
+//      255,                    //     500 ms delay
+//    ST7735_FRMCTR1, 3      ,  //  3: Frame rate ctrl - normal mode, 3 args:
+//      0x01, 0x2C, 0x2D,       //     Rate = fosc/(1x2+40) * (LINE+2C+2D)
+//    ST7735_FRMCTR2, 3      ,  //  4: Frame rate control - idle mode, 3 args:
+//      0x01, 0x2C, 0x2D,       //     Rate = fosc/(1x2+40) * (LINE+2C+2D)
+//    ST7735_FRMCTR3, 6      ,  //  5: Frame rate ctrl - partial mode, 6 args:
+//      0x01, 0x2C, 0x2D,       //     Dot inversion mode
+//      0x01, 0x2C, 0x2D,       //     Line inversion mode
+//    ST7735_INVCTR , 1      ,  //  6: Display inversion ctrl, 1 arg, no delay:
+//      0x07,                   //     No inversion
+//    ST7735_PWCTR1 , 3      ,  //  7: Power control, 3 args, no delay:
+//      0xA2,
+//      0x02,                   //     -4.6V
+//      0x84,                   //     AUTO mode
+//    ST7735_PWCTR2 , 1      ,  //  8: Power control, 1 arg, no delay:
+//      0xC5,                   //     VGH25 = 2.4C VGSEL = -10 VGH = 3 * AVDD
+//    ST7735_PWCTR3 , 2      ,  //  9: Power control, 2 args, no delay:
+//      0x0A,                   //     Opamp current small
+//      0x00,                   //     Boost frequency
+//    ST7735_PWCTR4 , 2      ,  // 10: Power control, 2 args, no delay:
+//      0x8A,                   //     BCLK/2, Opamp current small & Medium low
+//      0x2A,
+//    ST7735_PWCTR5 , 2      ,  // 11: Power control, 2 args, no delay:
+//      0x8A, 0xEE,
+//    ST7735_VMCTR1 , 1      ,  // 12: Power control, 1 arg, no delay:
+//      0x0E,
+//    ST7735_INVOFF , 0      ,  // 13: Don't invert display, no args, no delay
+//    ST7735_MADCTL , 1      ,  // 14: Memory access control (directions), 1 arg:
+//      ST7735_ROTATION,        //     row addr/col addr, bottom to top refresh
+//    ST7735_COLMOD , 1      ,  // 15: set color mode, 1 arg, no delay:
+//      0x05 },                 //     16-bit color
 
 #if (defined(ST7735_IS_128X128) || defined(ST7735_IS_160X128))
   init_cmds2[] = {            // Init for 7735R, part 2 (1.44" display)
@@ -92,9 +132,11 @@ void ST7735_Unselect() {
 }
 
 static void ST7735_Reset() {
+#if defined(ST7735_RES_GPIO_Port) && defined(ST7735_RES_Pin)
     HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_RESET);
     HAL_Delay(5);
     HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_SET);
+#endif
 }
 
 static void ST7735_WriteCommand(uint8_t cmd) {
@@ -170,7 +212,7 @@ void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 
     ST7735_Unselect();
 }
-
+#if DISP_USE_FONT == 1
 static void ST7735_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor) {
     uint32_t i, b, j;
 
@@ -232,6 +274,7 @@ void ST7735_WriteString(uint16_t x, uint16_t y, const char* str, FontDef font, u
 
     ST7735_Unselect();
 }
+#endif
 
 void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color) {
     // clipping
@@ -273,5 +316,4 @@ void ST7735_InvertColors(bool invert) {
     ST7735_WriteCommand(invert ? ST7735_INVON : ST7735_INVOFF);
     ST7735_Unselect();
 }
-
 

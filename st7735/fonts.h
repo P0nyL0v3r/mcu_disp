@@ -4,6 +4,9 @@
 
 #include <stdint.h>
 
+#include "st7735_conf.h"
+
+#if DISP_USE_FONT == 1
 typedef struct {
     const uint8_t width;
     uint8_t height;
@@ -14,5 +17,7 @@ typedef struct {
 extern FontDef Font_7x10;
 extern FontDef Font_11x18;
 extern FontDef Font_16x26;
+
+#endif
 
 #endif // __FONTS_H__
