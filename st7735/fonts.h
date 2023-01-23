@@ -6,7 +6,7 @@
 
 #include "st7735_conf.h"
 
-#if DISP_USE_FONT == 1
+#if USE_FONT == 1
 typedef struct {
     const uint8_t width;
     uint8_t height;

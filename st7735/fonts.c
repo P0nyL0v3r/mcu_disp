@@ -1,7 +1,7 @@
 /* vim: set ai et ts=4 sw=4: */
 #include "fonts.h"
 
-#if DISP_USE_FONT == 1
+#if USE_FONT == 1
 
 static const uint16_t Font7x10 [] = {
 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  // sp

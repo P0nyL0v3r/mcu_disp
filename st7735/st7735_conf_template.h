@@ -2,8 +2,10 @@
 #define ST7735_CONF_TEMPLATE_H_
 
 /*** Redefine if necessary ***/
+//#define USE_FONT        1
+//#define USE_COLOR_565   1
+//
 //#define ST7735_SPI_PORT hspi1
-//extern SPI_HandleTypeDef ST7735_SPI_PORT;
 //
 //#define ST7735_RES_Pin       GPIO_PIN_7
 //#define ST7735_RES_GPIO_Port GPIOC

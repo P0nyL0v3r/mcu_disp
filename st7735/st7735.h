@@ -5,8 +5,12 @@
 #include <stdbool.h>
 #include "st7735_conf.h"
 
-#if DISP_USE_FONT == 1
-#include "fonts.h"
+#if USE_COLOR_565 == 1
+  #include "color.h"
+#endif
+
+#if USE_FONT == 1
+  #include "fonts.h"
 #endif
 
 #if !defined(ST7735_SPI_PORT)
@@ -78,7 +82,7 @@ void ST7735_Unselect();
 
 void ST7735_Init();
 void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color);
-#if DISP_USE_FONT == 1
+#if USE_FONT == 1
 void ST7735_WriteString(uint16_t x, uint16_t y, const char* str, FontDef font, uint16_t color, uint16_t bgcolor);
 #endif
 void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);

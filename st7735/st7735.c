@@ -1,8 +1,10 @@
 /* vim: set ai et ts=4 sw=4: */
-#include "stm32f4xx_hal.h"
+#include "spi.h"
 #include "st7735.h"
 
 #define DELAY 0x80
+
+extern SPI_HandleTypeDef ST7735_SPI_PORT;
 
 // based on weact mini h7 display example
 static const uint8_t
@@ -141,12 +143,12 @@ static void ST7735_Reset() {
 
 static void ST7735_WriteCommand(uint8_t cmd) {
     HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(&ST7735_SPI_PORT, &cmd, sizeof(cmd), HAL_MAX_DELAY);
+    HAL_SPI_Transmit(&ST7735_SPI_PORT, &cmd, sizeof(cmd), 100);
 }
 
 static void ST7735_WriteData(uint8_t* buff, size_t buff_size) {
     HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
-    HAL_SPI_Transmit(&ST7735_SPI_PORT, buff, buff_size, HAL_MAX_DELAY);
+    HAL_SPI_Transmit(&ST7735_SPI_PORT, buff, buff_size, 100);
 }
 
 static void ST7735_ExecuteCommandList(const uint8_t *addr) {
@@ -212,7 +214,7 @@ void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 
     ST7735_Unselect();
 }
-#if DISP_USE_FONT == 1
+#if USE_FONT == 1
 static void ST7735_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor) {
     uint32_t i, b, j;
 
@@ -289,7 +291,7 @@ void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16
     HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
     for(y = h; y > 0; y--) {
         for(x = w; x > 0; x--) {
-            HAL_SPI_Transmit(&ST7735_SPI_PORT, data, sizeof(data), HAL_MAX_DELAY);
+            HAL_SPI_Transmit(&ST7735_SPI_PORT, data, sizeof(data), 100);
         }
     }
 
